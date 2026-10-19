@@ -1,0 +1,9 @@
+set httpd port 2812 and
+    use address 0.0.0.0  # only accept connection from localhost (drop if you use M/M>
+    allow 0.0.0.0/0        # allow localhost to connect to the server and
+    allow admin:monit      # require user 'admin' with password 'monit'
+check process nginx with pidfile /var/run/nginx.pid
+    start program = "/bin/systemctl start nginx"
+    stop program  = "/bin/systemctl stop nginx"
+    if failed port 80 then restart
+    if 7 restarts within 7 cycles then timeout
