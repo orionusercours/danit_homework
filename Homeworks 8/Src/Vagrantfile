@@ -1,0 +1,29 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "cloud-image/ubuntu-26.04"
+  config.vm.box_check_update = false
+  config.vm.network "public_network", bridge: "en0: Wi-Fi"
+  
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = true
+    vb.name = "my-vm-hw8"
+    vb.memory = "1024"
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    # Оновлення списку пакетів
+    apt-get update
+    
+    # Встановлення Nginx
+    apt-get install -y nginx
+    
+    # Заміна порту 80 на 82 у конфігурації Nginx за допомогою sed
+    sed -i 's/listen 80 default_server;/listen 82 default_server;/g' /etc/nginx/sites-available/default
+    sed -i 's/listen \\[::\\]:80 default_server;/listen \\[::\\]:82 default_server;/g' /etc/nginx/sites-available/default
+    
+    # Перезапуск Nginx для застосування змін
+    systemctl restart nginx
+  SHELL
+end
